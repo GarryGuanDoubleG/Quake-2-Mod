@@ -598,15 +598,38 @@ void rocket_touch (edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *su
 	G_FreeEdict (ent);
 }
 
+void rocket_think(edict_t *rocket){
+	vec3_t distance;
+	rocket->nextthink = level.time + 0.1;
+	_VectorSubtract(rocket->p_origin, rocket->s.origin,distance);
+	rocket->rocket_dis = VectorLength(distance);
+
+	gi.centerprintf(rocket, "Rocket Think");
+	//gi.centerprintf(rocket, "Distance is %f", rocket->rocket_dis);
+
+	if(rocket->rocket_dis > 100 && rocket->reversed == 0){
+		rocket->velocity[0] *= -1;
+		rocket->velocity[1] *= -1;
+		rocket->velocity[2] *= -1;
+		rocket->reversed = 1;
+	}
+
+}
+
+
 void fire_rocket (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed, float damage_radius, int radius_damage)
 {
 	edict_t	*rocket;
 
+	gi.centerprintf(self, "Fire Rocket");
 	rocket = G_Spawn();
 	VectorCopy (start, rocket->s.origin);
 	VectorCopy (dir, rocket->movedir);
 	vectoangles (dir, rocket->s.angles);
 	VectorScale (dir, speed, rocket->velocity);
+	VectorCopy (start, rocket->p_origin);
+	rocket->rocket_dis = 0.0;
+	rocket->reversed = 0;
 	rocket->movetype = MOVETYPE_FLYMISSILE;
 	rocket->clipmask = MASK_SHOT;
 	rocket->solid = SOLID_BBOX;
@@ -616,8 +639,10 @@ void fire_rocket (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed
 	rocket->s.modelindex = gi.modelindex ("models/objects/rocket/tris.md2");
 	rocket->owner = self;
 	rocket->touch = rocket_touch;
-	rocket->nextthink = level.time + 8000/speed;
-	rocket->think = G_FreeEdict;
+
+	rocket->nextthink = level.time + 1;
+	rocket->think = rocket_think;
+
 	rocket->dmg = damage;
 	rocket->radius_dmg = radius_damage;
 	rocket->dmg_radius = damage_radius;
@@ -629,6 +654,7 @@ void fire_rocket (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed
 
 	gi.linkentity (rocket);
 }
+
 
 
 /*

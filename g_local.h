@@ -1091,5 +1091,11 @@ struct edict_s
 	// common data blocks
 	moveinfo_t		moveinfo;
 	monsterinfo_t	monsterinfo;
+
+	//added for the rocket
+	double rocket_dis;
+	int reversed;
+	vec3_t p_origin;
+
 };
 

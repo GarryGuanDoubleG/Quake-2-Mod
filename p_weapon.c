@@ -843,7 +843,6 @@ void Weapon_Blaster (edict_t *ent)
 	static int	fire_frames[]	= {5, 0};
 
 	Weapon_Generic (ent, 4, 5, 52, 55, pause_frames, fire_frames, Weapon_Blaster_Fire);
-	gi.centerprintf(ent, "Heller Werld");
 }
 
 
