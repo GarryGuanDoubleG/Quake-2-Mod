@@ -297,15 +297,20 @@ void blaster_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *
 	health = G_Spawn();
 	health->movetype = MOVETYPE_NONE;
 
-	_VectorCopy(self->velocity, new_origin);
+	/*_VectorCopy(self->velocity, new_origin);
 	VectorNormalize(new_origin);
-	VectorScale(new_origin, -50, new_origin);
+	VectorScale(new_origin, -50, new_origin);*/
+
+	VectorCopy(plane->normal,new_origin);
+	VectorNormalize(new_origin);
+	VectorScale(new_origin,35,new_origin);
+	//new_origin[2] = 0;
 	VectorAdd(new_origin,self->s.origin, health->s.origin);
 
 	health->solid = SOLID_BBOX;
-
+/*
 	VectorClear (health->mins);
-	VectorClear (health->maxs);
+	VectorClear (health->maxs);*/
 
 	health->owner = self->owner;
 	health->think = G_FreeEdict;
