@@ -10,6 +10,9 @@ a non-instant attack weapon.  It checks to see if a
 monster's dodge function should be called.
 =================
 */
+//GG edit
+void ED_CallSpawn (edict_t *ent);
+
 static void check_dodge (edict_t *self, vec3_t start, vec3_t dir, int speed)
 {
 	vec3_t	end;
@@ -287,6 +290,27 @@ Fires a single blaster bolt.  Used by the blaster and hyper blaster.
 void blaster_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
 	int		mod;
+	//GG edit
+	edict_t* health;
+	vec3_t new_origin;
+
+	health = G_Spawn();
+	health->movetype = MOVETYPE_NONE;
+
+	_VectorCopy(self->velocity, new_origin);
+	VectorNormalize(new_origin);
+	VectorScale(new_origin, -50, new_origin);
+	VectorAdd(new_origin,self->s.origin, health->s.origin);
+
+	health->solid = SOLID_BBOX;
+
+	VectorClear (health->mins);
+	VectorClear (health->maxs);
+
+	health->owner = self->owner;
+	health->think = G_FreeEdict;
+	health->classname = "item_health";
+	ED_CallSpawn(health);
 
 	if (other == self->owner)
 		return;
@@ -319,6 +343,7 @@ void blaster_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *
 			gi.WriteDir (plane->normal);
 		gi.multicast (self->s.origin, MULTICAST_PVS);
 	}
+
 
 	G_FreeEdict (self);
 }
@@ -368,6 +393,7 @@ void fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int spee
 		VectorMA (bolt->s.origin, -10, dir, bolt->s.origin);
 		bolt->touch (bolt, tr.ent, NULL, NULL);
 	}
+
 }	
 
 

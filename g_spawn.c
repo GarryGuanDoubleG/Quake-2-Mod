@@ -289,6 +289,9 @@ void ED_CallSpawn (edict_t *ent)
 			return;
 		}
 	}
+	if(!strcmp("item_health", ent->classname)){
+		gi.centerprintf(ent->owner, "Couldn't find item health");
+	}
 	gi.dprintf ("%s doesn't have a spawn function\n", ent->classname);
 }
 
