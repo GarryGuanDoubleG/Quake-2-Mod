@@ -298,18 +298,23 @@ void blaster_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *
 	//GG edit
 	edict_t* portal;
 	vec3_t new_origin;
+	vec3_t size;
 
 	portal = G_Spawn();
 	portal->movetype = MOVETYPE_NONE;
+	size[0] = 5;
+	size[1] = 5;
+	size[2] = 5;
 
 	/*_VectorCopy(self->velocity, new_origin);
 	VectorNormalize(new_origin);
 	VectorScale(new_origin, -50, new_origin);*/
 
 	VectorCopy(plane->normal,new_origin);
+	VectorCopy(size, portal->size);
 	VectorNormalize(new_origin);
 	VectorScale(new_origin,350,new_origin);
-	new_origin[2] += 140 ;
+	new_origin[2] += 140;
 	VectorAdd(new_origin,self->s.origin, portal->s.origin);
 	gi.centerprintf(self->owner, "Bolt Y:%f Portal Y: %f", self->s.origin[1], portal->s.origin[1]);
 	portal->solid = SOLID_BBOX;
