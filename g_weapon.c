@@ -303,14 +303,17 @@ void blaster_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *
 
 	VectorCopy(plane->normal,new_origin);
 	VectorNormalize(new_origin);
-	VectorScale(new_origin,35,new_origin);
-	//new_origin[2] = 0;
+	VectorScale(new_origin,25,new_origin);
+	new_origin[2] += 140 ;
 	VectorAdd(new_origin,self->s.origin, health->s.origin);
-
+	gi.centerprintf(self->owner, "Health Z:%f Bolt Z: %f", health->s.origin[2], self->s.origin[2]);
 	health->solid = SOLID_BBOX;
-/*
+	if((health->s.origin[2] - self->s.origin[2]) != 140){
+		health->s.origin[2] = self->s.origin[2] + 30;
+	}
+
 	VectorClear (health->mins);
-	VectorClear (health->maxs);*/
+	VectorClear (health->maxs);
 
 	health->owner = self->owner;
 	health->think = G_FreeEdict;
@@ -385,6 +388,7 @@ void fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int spee
 	bolt->think = G_FreeEdict;
 	bolt->dmg = damage;
 	bolt->classname = "bolt";
+
 	if (hyper)
 		bolt->spawnflags = 1;
 	gi.linkentity (bolt);

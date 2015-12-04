@@ -7,7 +7,9 @@ typedef struct
 	void	(*spawn)(edict_t *ent);
 } spawn_t;
 
-
+//gg edit
+void SP_portal(edict_t *self);
+// end
 void SP_item_health (edict_t *self);
 void SP_item_health_small (edict_t *self);
 void SP_item_health_large (edict_t *self);
@@ -127,6 +129,9 @@ void SP_turret_driver (edict_t *self);
 
 
 spawn_t	spawns[] = {
+	//gg edit
+	{"gg_portal", SP_portal},
+	//end
 	{"item_health", SP_item_health},
 	{"item_health_small", SP_item_health_small},
 	{"item_health_large", SP_item_health_large},
@@ -245,6 +250,7 @@ spawn_t	spawns[] = {
 	{"turret_breach", SP_turret_breach},
 	{"turret_base", SP_turret_base},
 	{"turret_driver", SP_turret_driver},
+
 
 	{NULL, NULL}
 };

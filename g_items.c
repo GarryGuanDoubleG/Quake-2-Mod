@@ -2106,8 +2106,9 @@ void SP_item_health (edict_t *self)
 		G_FreeEdict (self);
 		return;
 	}
-
-	self->model = "models/items/healing/medium/tris.md2";
+	//gg edit
+	//self->model = "models/items/healing/medium/tris.md2";
+	self->model = "models/objects/black/tris.md2";
 	self->count = 10;
 	SpawnItem (self, FindItem ("Health"));
 	gi.soundindex ("items/n_health.wav");
