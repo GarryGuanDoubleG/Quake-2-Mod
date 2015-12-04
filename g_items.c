@@ -725,6 +725,14 @@ qboolean Pickup_PowerArmor (edict_t *ent, edict_t *other)
 	return true;
 }
 
+//gg edit
+
+qboolean qb_Portal(edict_t *ent, edict_t *other){
+
+	return false;
+}
+
+// gg end
 void Drop_PowerArmor (edict_t *ent, gitem_t *item)
 {
 	if ((ent->flags & FL_POWER_ARMOR) && (ent->client->pers.inventory[ITEM_INDEX(item)] == 1))
@@ -902,13 +910,6 @@ void droptofloor (edict_t *ent)
 	vec3_t		dest;
 	float		*v;
 
-	//gg edit
-	if(!strcmp(ent->classname, "gg_portal")){
-		ent->think = G_FreeEdict;
-		return;
-	}
-	//end
-
 	v = tv(-15,-15,-15);
 	VectorCopy (v, ent->mins);
 	v = tv(15,15,15);
@@ -1048,7 +1049,9 @@ be on an entity that hasn't spawned yet.
 */
 void SpawnItem (edict_t *ent, gitem_t *item)
 {
+
 	PrecacheItem (item);
+
 
 	if (ent->spawnflags)
 	{
@@ -1058,6 +1061,7 @@ void SpawnItem (edict_t *ent, gitem_t *item)
 			gi.dprintf("%s at %s has invalid spawnflags set\n", ent->classname, vtos(ent->s.origin));
 		}
 	}
+
 
 	// some items will be prevented in deathmatch
 	if (deathmatch->value)
@@ -1108,15 +1112,30 @@ void SpawnItem (edict_t *ent, gitem_t *item)
 		item->drop = NULL;
 	}
 
+	
 	ent->item = item;
 	ent->nextthink = level.time + 2 * FRAMETIME;    // items start after other solids
-	ent->think = droptofloor;
-	ent->s.effects = item->world_model_flags;
-	ent->s.renderfx = RF_GLOW;
+	//gg edit
+	if(ent){
+		if(!strcmp(ent->classname, "gg_portal")){
+			return;
+		}
+		else{
+			ent->think = droptofloor;
+			ent->s.effects = item->world_model_flags;
+			ent->s.renderfx = RF_GLOW;
+
+		}
+	}
+	/*ent->s.effects = item->world_model_flags;
+	ent->s.renderfx = RF_GLOW;*/
+	//gg end
+
 	if (ent->model)
 		gi.modelindex (ent->model);
+
 }
-//gg edit
+
 
 //======================================================================
 
@@ -2101,21 +2120,20 @@ tank commander's head
 	},
 //gg edit
 //making portal an item
-
 	{
-		"gg_portal",
-		 NULL,//calls portal touch
+		"portal",
+		 qb_Portal,
 		 NULL,
 		 NULL,
 		 NULL,
-		 NULL,//add a sound here later,
+		"items/pkup.wav",//add a sound here later,
 		 "models/objects/black/tris.md2",
 		 0,
 		 NULL,
 
-/* icon */		 NULL,
-/* pickup*/		 NULL,
-/*width*/		 0,
+/* icon */		"i_health",
+/* pickup */	"Health",
+/* width */		0,
 
 		 0,
 		 NULL,
@@ -2126,7 +2144,6 @@ tank commander's head
 		 NULL,
 		 0,
 /*precache*/ "",
-
 	},
 
 	// end of list marker
@@ -2244,20 +2261,22 @@ void portal_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *su
 }
 //spawn function for spawning portal object
 void SP_portal (edict_t *self){
-
-	gi.centerprintf(self->owner, "SP Portal");
+	char* classname;
 
 	/*self->model = "models/objects/black/tris.md2";
+
+	if(self->model)
+		gi.modelindex (self->model);*/
+
+	SpawnItem (self, FindItem ("portal"));
+
+	self->model = "models/objects/black/tris.md2";
 	self->solid = SOLID_TRIGGER;
 	self->movetype = MOVETYPE_NONE;
 	self->touch = portal_touch;
 	self->nextthink = level.time +2 *FRAMETIME;
 	self->think = G_FreeEdict;
-	if(self->model)
-		gi.modelindex (self->model);
 
-	gi.centerprintf(self->owner, "Calling Spawn Item");
-	SpawnItem (self, FindItem (self->classname));
-	gi.linkentity (self);*/
+	gi.linkentity (self);
 
 }
