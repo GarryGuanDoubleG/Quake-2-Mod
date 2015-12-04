@@ -934,8 +934,6 @@ void droptofloor (edict_t *ent)
 		return;
 	}
 
-	VectorCopy (tr.endpos, ent->s.origin);
-
 	if (ent->team)
 	{
 		ent->flags &= ~FL_TEAMSLAVE;
@@ -967,6 +965,11 @@ void droptofloor (edict_t *ent)
 	}
 
 	gi.linkentity (ent);
+
+	if(!strcmp(ent->classname, "gg_portal")){
+		ent->nextthink = level.time *2 + 100;
+		ent->think = G_FreeEdict;
+	}
 }
 
 
@@ -1115,24 +1118,23 @@ void SpawnItem (edict_t *ent, gitem_t *item)
 	
 	ent->item = item;
 	ent->nextthink = level.time + 2 * FRAMETIME;    // items start after other solids
+	ent->think = droptofloor;
 	//gg edit
 	if(ent){
 		if(!strcmp(ent->classname, "gg_portal")){
+			if (ent->model)
+				gi.modelindex (ent->model);
 			return;
 		}
 		else{
-			ent->think = droptofloor;
 			ent->s.effects = item->world_model_flags;
 			ent->s.renderfx = RF_GLOW;
-
 		}
 	}
 	/*ent->s.effects = item->world_model_flags;
 	ent->s.renderfx = RF_GLOW;*/
 	//gg end
 
-	if (ent->model)
-		gi.modelindex (ent->model);
 
 }
 
@@ -2274,9 +2276,10 @@ void SP_portal (edict_t *self){
 	self->solid = SOLID_TRIGGER;
 	self->movetype = MOVETYPE_NONE;
 	self->touch = portal_touch;
-	self->nextthink = level.time +2 *FRAMETIME;
-	self->think = G_FreeEdict;
-
+	/*self->nextthink = level.time * 10000 + 10000;
+	self->think = G_FreeEdict;*/
+	if (self->model)
+		gi.modelindex (self->model);
 	gi.linkentity (self);
 
 }

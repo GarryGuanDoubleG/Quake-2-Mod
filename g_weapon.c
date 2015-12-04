@@ -308,10 +308,10 @@ void blaster_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *
 
 	VectorCopy(plane->normal,new_origin);
 	VectorNormalize(new_origin);
-	VectorScale(new_origin,300,new_origin);
+	VectorScale(new_origin,350,new_origin);
 	new_origin[2] += 140 ;
 	VectorAdd(new_origin,self->s.origin, portal->s.origin);
-	gi.centerprintf(self->owner, "Health Z:%f Bolt Z: %f", portal->s.origin[2], portal->s.origin[2]);
+	gi.centerprintf(self->owner, "Bolt Y:%f Portal Y: %f", self->s.origin[1], portal->s.origin[1]);
 	portal->solid = SOLID_BBOX;
 	if((portal->s.origin[2] - self->s.origin[2]) != 140){
 		portal->s.origin[2] = self->s.origin[2] + 30;
