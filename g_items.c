@@ -919,14 +919,18 @@ void droptofloor (edict_t *ent)
 		gi.setmodel (ent, ent->model);
 	else
 		gi.setmodel (ent, ent->item->world_model);
-	ent->solid = SOLID_TRIGGER;
-	ent->movetype = MOVETYPE_TOSS;  
-	ent->touch = Touch_Item;
+	
+	//gg eedit
+	if(strcmp(ent->classname, "gg_portal")){
+		ent->solid = SOLID_TRIGGER;
+		ent->movetype = MOVETYPE_TOSS;  
+		ent->touch = Touch_Item;
 
-	v = tv(0,0,-128);
-	VectorAdd (ent->s.origin, v, dest);
-
-	tr = gi.trace (ent->s.origin, ent->mins, ent->maxs, dest, ent, MASK_SOLID);
+		v = tv(0,0,-128);
+		VectorAdd (ent->s.origin, v, dest);
+		tr = gi.trace (ent->s.origin, ent->mins, ent->maxs, dest, ent, MASK_SOLID);
+	}
+	//end
 	if (tr.startsolid)
 	{
 		gi.dprintf ("droptofloor: %s startsolid at %s\n", ent->classname, vtos(ent->s.origin));
