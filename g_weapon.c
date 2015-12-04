@@ -287,15 +287,20 @@ fire_blaster
 Fires a single blaster bolt.  Used by the blaster and hyper blaster.
 =================
 */
+//gg edit
+//putting portal think here just for testing purposes
+//need to figure out best place to put it
+//should only be called when player collides
+
 void blaster_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
 	int		mod;
 	//GG edit
-	edict_t* health;
+	edict_t* portal;
 	vec3_t new_origin;
 
-	health = G_Spawn();
-	health->movetype = MOVETYPE_NONE;
+	portal = G_Spawn();
+	portal->movetype = MOVETYPE_NONE;
 
 	/*_VectorCopy(self->velocity, new_origin);
 	VectorNormalize(new_origin);
@@ -303,22 +308,19 @@ void blaster_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *
 
 	VectorCopy(plane->normal,new_origin);
 	VectorNormalize(new_origin);
-	VectorScale(new_origin,25,new_origin);
+	VectorScale(new_origin,500,new_origin);
 	new_origin[2] += 140 ;
-	VectorAdd(new_origin,self->s.origin, health->s.origin);
-	gi.centerprintf(self->owner, "Health Z:%f Bolt Z: %f", health->s.origin[2], self->s.origin[2]);
-	health->solid = SOLID_BBOX;
-	if((health->s.origin[2] - self->s.origin[2]) != 140){
-		health->s.origin[2] = self->s.origin[2] + 30;
+	VectorAdd(new_origin,self->s.origin, portal->s.origin);
+	//gi.centerprintf(self->owner, "Health Z:%f Bolt Z: %f", health->s.origin[2], self->s.origin[2]);
+	portal->solid = SOLID_BBOX;
+	if((portal->s.origin[2] - self->s.origin[2]) != 140){
+		portal->s.origin[2] = self->s.origin[2] + 30;
 	}
 
-	VectorClear (health->mins);
-	VectorClear (health->maxs);
-
-	health->owner = self->owner;
-	health->think = G_FreeEdict;
-	health->classname = "item_health";
-	ED_CallSpawn(health);
+	portal->owner = self->owner;
+	portal->classname = "gg_portal";
+	
+	ED_CallSpawn(portal);
 
 	if (other == self->owner)
 		return;

@@ -902,6 +902,13 @@ void droptofloor (edict_t *ent)
 	vec3_t		dest;
 	float		*v;
 
+	//gg edit
+	if(!strcmp(ent->classname, "gg_portal")){
+		ent->think = G_FreeEdict;
+		return;
+	}
+	//end
+
 	v = tv(-15,-15,-15);
 	VectorCopy (v, ent->mins);
 	v = tv(15,15,15);
@@ -1109,6 +1116,7 @@ void SpawnItem (edict_t *ent, gitem_t *item)
 	if (ent->model)
 		gi.modelindex (ent->model);
 }
+//gg edit
 
 //======================================================================
 
@@ -2091,6 +2099,35 @@ tank commander's head
 		0,
 /* precache */ "items/s_health.wav items/n_health.wav items/l_health.wav items/m_health.wav"
 	},
+//gg edit
+//making portal an item
+
+	{
+		"gg_portal",
+		 NULL,//calls portal touch
+		 NULL,
+		 NULL,
+		 NULL,
+		 NULL,//add a sound here later,
+		 "models/objects/black/tris.md2",
+		 0,
+		 NULL,
+
+/* icon */		 NULL,
+/* pickup*/		 NULL,
+/*width*/		 0,
+
+		 0,
+		 NULL,
+		 0,
+
+		 0,
+
+		 NULL,
+		 0,
+/*precache*/ "",
+
+	},
 
 	// end of list marker
 	{NULL}
@@ -2195,4 +2232,32 @@ void SetItemNames (void)
 	body_armor_index   = ITEM_INDEX(FindItem("Body Armor"));
 	power_screen_index = ITEM_INDEX(FindItem("Power Screen"));
 	power_shield_index = ITEM_INDEX(FindItem("Power Shield"));
+}
+
+
+//gg edit
+//portal think
+void portal_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf){
+
+	gi.centerprintf(other->owner, "Portal is touched");
+
+}
+//spawn function for spawning portal object
+void SP_portal (edict_t *self){
+
+	gi.centerprintf(self->owner, "SP Portal");
+
+	/*self->model = "models/objects/black/tris.md2";
+	self->solid = SOLID_TRIGGER;
+	self->movetype = MOVETYPE_NONE;
+	self->touch = portal_touch;
+	self->nextthink = level.time +2 *FRAMETIME;
+	self->think = G_FreeEdict;
+	if(self->model)
+		gi.modelindex (self->model);
+
+	gi.centerprintf(self->owner, "Calling Spawn Item");
+	SpawnItem (self, FindItem (self->classname));
+	gi.linkentity (self);*/
+
 }
