@@ -921,7 +921,7 @@ void droptofloor (edict_t *ent)
 		gi.setmodel (ent, ent->item->world_model);
 	
 	//gg eedit
-	if(strcmp(ent->classname, "gg_portal")){
+	//if(strcmp(ent->classname, "gg_portal")){
 		ent->solid = SOLID_TRIGGER;
 		ent->movetype = MOVETYPE_TOSS;  
 		ent->touch = Touch_Item;
@@ -929,7 +929,7 @@ void droptofloor (edict_t *ent)
 		v = tv(0,0,-128);
 		VectorAdd (ent->s.origin, v, dest);
 		tr = gi.trace (ent->s.origin, ent->mins, ent->maxs, dest, ent, MASK_SOLID);
-	}
+	//}
 	//end
 	if (tr.startsolid)
 	{
@@ -971,11 +971,10 @@ void droptofloor (edict_t *ent)
 	gi.linkentity (ent);
 
 	if(!strcmp(ent->classname, "gg_portal")){
-		ent->nextthink = level.time *2 + 100;
+		ent->nextthink = level.time *2 +9999999;
 		ent->think = G_FreeEdict;
 	}
 }
-
 
 /*
 ===============
@@ -1138,8 +1137,6 @@ void SpawnItem (edict_t *ent, gitem_t *item)
 	/*ent->s.effects = item->world_model_flags;
 	ent->s.renderfx = RF_GLOW;*/
 	//gg end
-
-
 }
 
 
@@ -2134,11 +2131,11 @@ tank commander's head
 		 NULL,
 		"items/pkup.wav",//add a sound here later,
 		 "models/objects/black/tris.md2",
-		 0,
+/*world model flags*/		 0,
 		 NULL,
 
 /* icon */		"i_health",
-/* pickup */	"Health",
+/* pickup */	"gg_portal",
 /* width */		0,
 
 		 0,
@@ -2262,7 +2259,7 @@ void SetItemNames (void)
 //portal think
 void portal_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf){
 
-	gi.centerprintf(other->owner, "Portal is touched");
+	gi.centerprintf(self->owner, "Portal is touched");
 
 }
 //spawn function for spawning portal object
@@ -2274,12 +2271,13 @@ void SP_portal (edict_t *self){
 	if(self->model)
 		gi.modelindex (self->model);*/
 
-	SpawnItem (self, FindItem ("portal"));
+	
 
 	self->model = "models/objects/black/tris.md2";
 	self->solid = SOLID_TRIGGER;
 	self->movetype = MOVETYPE_NONE;
 	self->touch = portal_touch;
+	SpawnItem (self, FindItem ("portal"));
 	/*self->nextthink = level.time * 10000 + 10000;
 	self->think = G_FreeEdict;*/
 	if (self->model)

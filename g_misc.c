@@ -1856,3 +1856,42 @@ void SP_misc_teleporter_dest (edict_t *ent)
 	VectorSet (ent->maxs, 32, 32, -16);
 	gi.linkentity (ent);
 }
+
+//gg edit
+
+void SP_Portal_Use (edict_t *ent, edict_t *other, edict_t *activator)
+{
+	
+	gi.WriteByte (svc_temp_entity);
+	gi.WriteByte (TE_BOSSTPORT);
+	gi.WritePosition (ent->s.origin);
+	gi.multicast (ent->s.origin, MULTICAST_PVS);
+	
+	//G_FreeEdict (ent);
+}
+
+void SP_Portal_Think (edict_t *self)
+{
+	if (++self->s.frame < 19)
+		self->nextthink = level.time + FRAMETIME;
+	else
+	{		
+		self->s.frame = 0;
+		self->nextthink = level.time + FRAMETIME;
+	}
+}
+
+
+void SP_Portal (edict_t *ent)
+{
+	ent->movetype = MOVETYPE_NONE;
+	ent->solid = SOLID_NOT;
+	VectorSet (ent->mins, -64, -64, 0);
+	VectorSet (ent->maxs, 64, 64, 8);
+	ent->s.modelindex = gi.modelindex ("models/objects/black/tris.md2");
+	ent->s.renderfx = RF_TRANSLUCENT;
+	ent->use = misc_blackhole_use;
+	ent->think = SP_Portal_Think;
+	ent->nextthink = level.time + 2 * FRAMETIME;
+	gi.linkentity (ent);
+}
