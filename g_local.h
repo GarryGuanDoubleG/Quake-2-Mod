@@ -1091,5 +1091,14 @@ struct edict_s
 	// common data blocks
 	moveinfo_t		moveinfo;
 	monsterinfo_t	monsterinfo;
+
+	//gg edit
+	edict_t		*new_portal;
+	edict_t		*old_portal;
+	edict_t		*dest;
+	int			is_portal;
+	int			portal_block; // a count timer to prevent getting stuck in portals
+	int			two_portals;// true if have 2 portals. Used to check if we want to free then create a portal
+
 };
 

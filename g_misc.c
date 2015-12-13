@@ -1879,20 +1879,77 @@ void SP_Portal_Think (edict_t *self)
 		self->s.frame = 0;
 		self->nextthink = level.time + FRAMETIME;
 	}
+
+	if(self->portal_block > 0){
+		self->portal_block -= 1;
+	}
+	else{
+		gi.linkentity(self);
+	}
+
 }
 void portal_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf){
 
-	/*if(other->client == NULL)
-		return;*/
+	/*if(!other->client)
+		return;
 
 	gi.centerprintf(other, "Portal Touch");
 
 	gi.WriteByte (svc_temp_entity);
 	gi.WriteByte (TE_BOSSTPORT);
-	gi.WritePosition (self->owner->s.origin);
-	gi.multicast (self->owner->s.origin, MULTICAST_PVS);
+	gi.WritePosition (other->s.origin);
+	gi.multicast (other->s.origin, MULTICAST_PVS);
+	*/
+	edict_t		*dest;
+	int			i;
 
-	G_FreeEdict(self);
+	if (!other->client)
+		return;
+
+
+	gi.centerprintf(other, "Portal Touch: Set portal_block to 100");
+
+	dest = self->dest;
+	dest->portal_block = 50;
+
+	if (!dest)
+	{
+		gi.dprintf ("Couldn't find destination\n");
+		return;
+	}
+
+	// unlink to make sure it can't possibly interfere with KillBox
+	gi.unlinkentity (other);
+	gi.unlinkentity(self->dest);
+
+	VectorCopy (dest->s.origin, other->s.origin);
+	VectorCopy (dest->s.origin, other->s.old_origin);
+
+	other->s.origin[2] += 10;
+
+	// clear the velocity and hold them in place briefly
+	VectorClear (other->velocity);
+	other->client->ps.pmove.pm_time = 160>>3;		// hold time
+	other->client->ps.pmove.pm_flags |= PMF_TIME_TELEPORT;
+
+	// draw the teleport splash at source and on the player
+	self->owner->s.event = EV_PLAYER_TELEPORT;
+	other->s.event = EV_PLAYER_TELEPORT;
+
+	// set angles
+	for (i=0 ; i<3 ; i++)
+	{
+		other->client->ps.pmove.delta_angles[i] = ANGLE2SHORT(dest->s.angles[i] - other->client->resp.cmd_angles[i]);
+	}
+
+	VectorClear (other->s.angles);
+	VectorClear (other->client->ps.viewangles);
+	VectorClear (other->client->v_angle);
+
+	// kill anything at the destination
+	KillBox (other);
+
+	gi.linkentity (other);
 	
 }
 
@@ -1900,8 +1957,8 @@ void SP_Portal (edict_t *ent)
 {
 	ent->movetype = MOVETYPE_NONE;
 	ent->solid = SOLID_BBOX;
-	VectorSet (ent->mins, -50, -50, -50);
-	VectorSet (ent->maxs, 50, 50, 50);
+	VectorSet (ent->mins, -64, -64, -10);
+	VectorSet (ent->maxs, 64, 64,10);
 
 	ent->s.modelindex = gi.modelindex ("models/objects/black/tris.md2");
 	ent->s.renderfx = RF_FULLBRIGHT;
