@@ -1880,18 +1880,36 @@ void SP_Portal_Think (edict_t *self)
 		self->nextthink = level.time + FRAMETIME;
 	}
 }
+void portal_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf){
 
+	/*if(other->client == NULL)
+		return;*/
+
+	gi.centerprintf(other, "Portal Touch");
+
+	gi.WriteByte (svc_temp_entity);
+	gi.WriteByte (TE_BOSSTPORT);
+	gi.WritePosition (self->owner->s.origin);
+	gi.multicast (self->owner->s.origin, MULTICAST_PVS);
+
+	G_FreeEdict(self);
+	
+}
 
 void SP_Portal (edict_t *ent)
 {
 	ent->movetype = MOVETYPE_NONE;
-	ent->solid = SOLID_NOT;
-	VectorSet (ent->mins, -64, -64, 0);
-	VectorSet (ent->maxs, 64, 64, 8);
+	ent->solid = SOLID_BBOX;
+	VectorSet (ent->mins, -50, -50, -50);
+	VectorSet (ent->maxs, 50, 50, 50);
+
 	ent->s.modelindex = gi.modelindex ("models/objects/black/tris.md2");
-	ent->s.renderfx = RF_TRANSLUCENT;
-	ent->use = misc_blackhole_use;
+	ent->s.renderfx = RF_FULLBRIGHT;
+	ent->use = SP_Portal_Use;
 	ent->think = SP_Portal_Think;
 	ent->nextthink = level.time + 2 * FRAMETIME;
+	ent->touch = portal_touch;
+
 	gi.linkentity (ent);
+
 }

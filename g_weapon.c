@@ -298,38 +298,22 @@ void blaster_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *
 	//GG edit
 	edict_t* portal;
 	vec3_t new_origin;
-	vec3_t size;
-	int		i;
+
 
 	portal = G_Spawn();
-	portal->movetype = MOVETYPE_NONE;
 
-	/*_VectorCopy(self->velocity, new_origin);
-	VectorNormalize(new_origin);
-	VectorScale(new_origin, -50, new_origin);*/
-
-	//gg edit
-	for(i = 0; i < 3; i++){
-			size[i] = 25;
-	}
+	//if it hits wall, spawn in 200 units normal to wall
 	VectorCopy(plane->normal,new_origin);
-	VectorCopy(size, portal->size);
-	VectorCopy(size, portal->absmin);
-	VectorCopy(size, portal->absmax);
 	VectorNormalize(new_origin);
-	VectorScale(new_origin,350,new_origin);
-	new_origin[2] += 140;
+	VectorScale(new_origin, 100,new_origin);
 	VectorAdd(new_origin,self->s.origin, portal->s.origin);
-	gi.centerprintf(self->owner, "Size of Portal XYZ %f %f %f", portal->size[0],portal->size[1],portal->size[2]);
-	portal->solid = SOLID_BBOX;
-	if((portal->s.origin[2] - self->s.origin[2]) != 140){
-		portal->s.origin[2] = self->s.origin[2] + 30;
-	}
 
-	portal->owner = self->owner;
+	portal->owner = self;
 	portal->classname = "gg_portal";
-	
+
 	ED_CallSpawn(portal);
+	gi.centerprintf(self->owner, "XYZ Size: %f%f%f", portal->size[0],portal->size[1],portal->size[2]);
+
 
 	if (other == self->owner)
 		return;

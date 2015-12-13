@@ -725,14 +725,6 @@ qboolean Pickup_PowerArmor (edict_t *ent, edict_t *other)
 	return true;
 }
 
-//gg edit
-
-qboolean qb_Portal(edict_t *ent, edict_t *other){
-
-	return false;
-}
-
-// gg end
 void Drop_PowerArmor (edict_t *ent, gitem_t *item)
 {
 	if ((ent->flags & FL_POWER_ARMOR) && (ent->client->pers.inventory[ITEM_INDEX(item)] == 1))
@@ -920,17 +912,15 @@ void droptofloor (edict_t *ent)
 	else
 		gi.setmodel (ent, ent->item->world_model);
 	
-	//gg eedit
-	//if(strcmp(ent->classname, "gg_portal")){
-		ent->solid = SOLID_TRIGGER;
-		ent->movetype = MOVETYPE_TOSS;  
-		ent->touch = Touch_Item;
+	
+	ent->solid = SOLID_TRIGGER;
+	ent->movetype = MOVETYPE_TOSS;  
+	ent->touch = Touch_Item;
 
-		v = tv(0,0,-128);
-		VectorAdd (ent->s.origin, v, dest);
-		tr = gi.trace (ent->s.origin, ent->mins, ent->maxs, dest, ent, MASK_SOLID);
-	//}
-	//end
+	v = tv(0,0,-128);
+	VectorAdd (ent->s.origin, v, dest);
+	tr = gi.trace (ent->s.origin, ent->mins, ent->maxs, dest, ent, MASK_SOLID);
+
 	if (tr.startsolid)
 	{
 		gi.dprintf ("droptofloor: %s startsolid at %s\n", ent->classname, vtos(ent->s.origin));
@@ -970,10 +960,6 @@ void droptofloor (edict_t *ent)
 
 	gi.linkentity (ent);
 
-	if(!strcmp(ent->classname, "gg_portal")){
-		ent->nextthink = level.time *2 +9999999;
-		ent->think = G_FreeEdict;
-	}
 }
 
 /*
@@ -1122,21 +1108,11 @@ void SpawnItem (edict_t *ent, gitem_t *item)
 	ent->item = item;
 	ent->nextthink = level.time + 2 * FRAMETIME;    // items start after other solids
 	ent->think = droptofloor;
-	//gg edit
-	if(ent){
-		if(!strcmp(ent->classname, "gg_portal")){
-			if (ent->model)
-				gi.modelindex (ent->model);
-			return;
-		}
-		else{
-			ent->s.effects = item->world_model_flags;
-			ent->s.renderfx = RF_GLOW;
-		}
-	}
-	/*ent->s.effects = item->world_model_flags;
-	ent->s.renderfx = RF_GLOW;*/
-	//gg end
+
+	gi.modelindex (ent->model);
+	ent->s.effects = item->world_model_flags;
+	ent->s.renderfx = RF_GLOW;
+
 }
 
 
@@ -2121,33 +2097,6 @@ tank commander's head
 		0,
 /* precache */ "items/s_health.wav items/n_health.wav items/l_health.wav items/m_health.wav"
 	},
-//gg edit
-//making portal an item
-	{
-		"portal",
-		 qb_Portal,
-		 NULL,
-		 NULL,
-		 NULL,
-		"items/pkup.wav",//add a sound here later,
-		 "models/objects/black/tris.md2",
-/*world model flags*/		 0,
-		 NULL,
-
-/* icon */		"i_health",
-/* pickup */	"gg_portal",
-/* width */		0,
-
-		 0,
-		 NULL,
-		 0,
-
-		 0,
-
-		 NULL,
-		 0,
-/*precache*/ "",
-	},
 
 	// end of list marker
 	{NULL}
@@ -2163,9 +2112,8 @@ void SP_item_health (edict_t *self)
 		G_FreeEdict (self);
 		return;
 	}
-	//gg edit
-	//self->model = "models/items/healing/medium/tris.md2";
-	self->model = "models/objects/black/tris.md2";
+
+	self->model = "models/items/healing/medium/tris.md2";
 	self->count = 10;
 	SpawnItem (self, FindItem ("Health"));
 	gi.soundindex ("items/n_health.wav");
@@ -2255,33 +2203,3 @@ void SetItemNames (void)
 }
 
 
-//gg edit
-//portal think
-void portal_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf){
-
-	gi.centerprintf(self->owner, "Portal is touched");
-
-}
-//spawn function for spawning portal object
-void SP_portal (edict_t *self){
-	char* classname;
-
-	/*self->model = "models/objects/black/tris.md2";
-
-	if(self->model)
-		gi.modelindex (self->model);*/
-
-	
-
-	self->model = "models/objects/black/tris.md2";
-	self->solid = SOLID_TRIGGER;
-	self->movetype = MOVETYPE_NONE;
-	self->touch = portal_touch;
-	SpawnItem (self, FindItem ("portal"));
-	/*self->nextthink = level.time * 10000 + 10000;
-	self->think = G_FreeEdict;*/
-	if (self->model)
-		gi.modelindex (self->model);
-	gi.linkentity (self);
-
-}
