@@ -306,6 +306,9 @@ void blaster_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *
 	VectorNormalize(new_origin);
 	VectorScale(new_origin, -50, new_origin);*/
 
+	//gg edit
+	gi.centerprintf(self->owner, "Hello world");
+
 	VectorCopy(plane->normal,new_origin);
 	VectorNormalize(new_origin);
 	VectorScale(new_origin,500,new_origin);
