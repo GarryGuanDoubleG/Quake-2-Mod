@@ -898,9 +898,43 @@ void Cmd_Dash_f(edict_t *ent)
 	gi.centerprintf(ent, "Cmd Dash");
 
 	VectorScale(forward, 250, dash_vel);
+	dash_vel[2] += 0.02;
 	VectorCopy(ent->s.origin,ent->dash_start);
 	ent->dash_count = 100;
 	VectorAdd(dash_vel, ent->velocity, ent->velocity);
+
+}
+
+void Cmd_Double_Jump_f(edict_t *ent){
+	
+	if(ent->groundentity){
+		return;
+	}
+	else if(ent->jumped){
+		return;
+	}
+	else
+	{
+		gi.centerprintf(ent, "Double Jump");
+		ent->velocity[2] += 350;
+		ent->jumped = true;
+	}
+
+}
+
+
+void Cmd_gg_Speed_f(edict_t *ent){
+
+	char* string;
+	string = gi.args();
+
+	gi.centerprintf(ent, "cmd gg speed f");
+	if(Q_stricmp(string, "on") == 0){
+		ent->speedup = 1;
+	}
+	else{
+		ent->speedup = 0;
+	}
 
 }
 
@@ -994,6 +1028,10 @@ void ClientCommand (edict_t *ent)
 		Cmd_PlayerList_f(ent);
 	else if(Q_stricmp(cmd, "dash") == 0)
 		Cmd_Dash_f(ent);
+	else if(Q_stricmp(cmd, "double_jump") == 0)
+		Cmd_Double_Jump_f(ent);
+	else if(Q_stricmp(cmd, "gg_speed") == 0)
+		Cmd_gg_Speed_f(ent);
 	else	// anything that doesn't match a command will be a chat
 		Cmd_Say_f (ent, false, true);
 }

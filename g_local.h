@@ -1114,7 +1114,11 @@ struct edict_s
 	vec3_t		dash_start;
 	vec3_t		dash_vel;
 	int			dash_count;
-	//
-
+	// jump stuff
+	int			jumped; // true if in air and already jumped
+	//speed (shift)
+	int			speedup; // bool if shift is down
+	int			speeddown;
+	int			speed_count;
 };
 

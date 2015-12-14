@@ -1552,12 +1552,35 @@ void PrintPmove (pmove_t *pm)
 
 /*
 ==============
+gg Speed up / down
+
+put it here cause yolo
+==============
+*/
+
+void gg_SpeedUp(edict_t *ent){
+	
+	/*vec3_t	forward, right;
+	vec3_t  dir;
+
+	AngleVectors (ent->client->v_angle, forward, right, NULL);
+	gi.centerprintf(ent, " gg Speed up "); */
+	float z_vel = ent->velocity[2];
+
+	VectorNormalize(ent->velocity);
+	VectorScale(ent->velocity, 1000, ent->velocity);
+	ent->velocity[2] = z_vel;
+}
+
+/*
+==============
 ClientThink
 
 This will be called once for each client frame, which will
 usually be a couple times for each server frame.
 ==============
 */
+
 void ClientThink (edict_t *ent, usercmd_t *ucmd)
 {
 	gclient_t	*client;
@@ -1568,6 +1591,10 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 	level.current_entity = ent;
 	client = ent->client;
 
+
+	if(ent->speedup){
+		gg_SpeedUp(ent);
+	}
 	if (level.intermissiontime)
 	{
 		client->ps.pmove.pm_type = PM_FREEZE;
@@ -1577,7 +1604,7 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 			level.exitintermission = true;
 		return;
 	}
-
+	
 	pm_passent = ent;
 
 	if (ent->client->chase_target) {
