@@ -1879,11 +1879,10 @@ void gPortal_Think(edict_t *self,edict_t *player){
 	//if distance btwn player & grav portal < 100, apply pull gravity
 	if(length <= 500 && self->portal_block == 0){
 		VectorNormalize(distance);
-		VectorScale(distance,150,distance);
+		VectorScale(distance,250,distance);
 		distance[2] *= 2.5;
 		VectorAdd(distance,player->velocity,player->velocity);
 	}
-
 }
 void SP_Portal_Think (edict_t *self)
 {
@@ -1921,35 +1920,39 @@ void SP_Portal_Think (edict_t *self)
 
 void portal_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf){
 
-	/*if(!other->client)
-		return;
-
-	gi.centerprintf(other, "Portal Touch");
-
-	gi.WriteByte (svc_temp_entity);
-	gi.WriteByte (TE_BOSSTPORT);
-	gi.WritePosition (other->s.origin);
-	gi.multicast (other->s.origin, MULTICAST_PVS);
-	*/
 	edict_t		*dest;
 	int			i;
+	vec3_t		distance;
+	float			length;
+
 
 	if (!other->client)
 		return;
 
-
-	dest = self->dest;
-	dest->portal_block = 50;
-
-	if (!dest)
+	if (!self->dest)
 	{
 		gi.dprintf ("Couldn't find destination\n");
 		return;
 	}
+	dest = self->dest;
+
+	if(dest->launch_portal && self->portal_block <= 0){
+		vec3_t launch_vel;
+		VectorScale(dest->launch_dir, -1500, launch_vel);
+		if(launch_vel[2] == 0)
+			launch_vel[2] += 100;
+		VectorAdd(launch_vel,other->velocity,other->velocity);
+	}
+
+	dest->portal_block = 50;
 
 	// unlink to make sure it can't possibly interfere with KillBox
 	gi.unlinkentity (other);
 	gi.unlinkentity(self->dest);
+	if( dest->prison_portal){
+		gi.centerprintf(self->owner->owner, " in dest prison");
+		gi.linkentity(dest);
+	}
 
 	VectorCopy (dest->s.origin, other->s.origin);
 	VectorCopy (dest->s.origin, other->s.old_origin);
@@ -1973,6 +1976,7 @@ void portal_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *s
 		other->client->ps.pmove.delta_angles[i] = ANGLE2SHORT(dest->s.angles[i] - other->client->resp.cmd_angles[i]);
 	}
 
+
 	/*VectorClear (other->s.angles);
 	VectorClear (other->client->ps.viewangles);
 	VectorClear (other->client->v_angle);*/
@@ -1992,10 +1996,10 @@ void SP_Portal (edict_t *ent)
 
 	portal = ent;
 
+
 	player = ent->owner->owner;
 	
 	//free first portal and connect second one with the one we just created
-
 	if(!player->old_portal){
 		player->old_portal = portal;
 	}
@@ -2011,7 +2015,7 @@ void SP_Portal (edict_t *ent)
 		player->old_portal = player->new_portal;
 		player->new_portal = portal;
 	}
-
+	
 
 	ent->movetype = MOVETYPE_NONE;
 	ent->solid = SOLID_BBOX;

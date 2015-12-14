@@ -127,6 +127,12 @@ static void fire_lead (edict_t *self, vec3_t start, vec3_t aimdir, int damage, i
 	qboolean	water = false;
 	int			content_mask = MASK_SHOT | MASK_WATER;
 
+	//gg edit
+	edict_t * portal;
+	edict_t * player;
+	vec3_t  new_origin;
+	vec3_t  temp_dir;
+	//end
 	tr = gi.trace (self->s.origin, NULL, NULL, start, self, MASK_SHOT);
 	if (!(tr.fraction < 1.0))
 	{
@@ -147,33 +153,36 @@ static void fire_lead (edict_t *self, vec3_t start, vec3_t aimdir, int damage, i
 		}
 
 		tr = gi.trace (start, NULL, NULL, end, self, content_mask);
-		if(self->launch_portal){
-			self->launch_portal = false;
 
-			//GG edit
-			edict_t * portal;
-			edict_t * player;
-			vec3_t  new_origin;
+			if(self->launch_portal){
+				self->launch_portal = false;
 
-			portal = G_Spawn();
-			VectorScale(dir,-1,portal->launch_dir);
+				//GG edit
 
-			player = self->owner;
+				portal = G_Spawn();
+				VectorSubtract(end, start, temp_dir);
+				//VectorCopy(temp_dir,temp_tr.plane.normal);
 
-			//if it hits wall, spawn in 200 units normal to wall
-			VectorCopy(end,new_origin);
+				VectorNormalize(temp_dir);
+				VectorCopy(temp_dir,portal->launch_dir);
+
+				VectorScale(temp_dir,-150, temp_dir);
+				//if it hits wall, spawn in 200 units normal to wall
+				//VectorCopy(end,new_origin);
 		
-			VectorScale(portal->launch_dir, 100, new_origin );
-			VectorAdd(new_origin, end, new_origin);
+				//VectorScale(portal->launch_dir, 100, new_origin );
+				VectorAdd(temp_dir, tr.endpos, portal->s.origin);
 
-			VectorAdd(new_origin,self->s.origin, portal->s.origin);
-
-			portal->owner = self;
-			portal->is_portal = true;
-			portal->classname = "gg_portal";
-			//free first portal and connect second one with the one we just created
-			ED_CallSpawn(portal);
-
+				player = G_Spawn();
+				player->owner = self;
+				portal->owner = player;
+				portal->is_portal = true;
+				portal->launch_portal = true;
+				portal->classname = "gg_portal";
+				//gi.centerprintf(self,"DIR: %f %f %f", new_origin[0], new_origin[1], temp_dir[2]);
+		
+				//free first portal and connect second one with the one we just created
+				ED_CallSpawn(portal);
 		}
 
 		// see if we hit water
@@ -275,6 +284,8 @@ static void fire_lead (edict_t *self, vec3_t start, vec3_t aimdir, int damage, i
 		gi.WritePosition (tr.endpos);
 		gi.multicast (pos, MULTICAST_PVS);
 	}
+
+
 }
 
 
@@ -341,6 +352,7 @@ void blaster_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *
 		VectorScale(new_origin, 100, new_origin);
 	VectorAdd(new_origin,self->s.origin, portal->s.origin);
 
+	gi.centerprintf(self->owner, "Blaster: %f %f %f", self->s.origin[0], self->s.origin[1], self->s.origin[2]);
 	portal->owner = self;
 	portal->is_portal = true;
 	portal->classname = "gg_portal";
@@ -730,12 +742,19 @@ void fire_rail (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick
 	edict_t		*ignore;
 	int			mask;
 	qboolean	water;
+	//gg edit
+	vec3_t		temp_dir;
+	edict_t		* portal;
+	edict_t		* player;
 
 	VectorMA (start, 8192, aimdir, end);
 	VectorCopy (start, from);
 	ignore = self;
 	water = false;
 	mask = MASK_SHOT|CONTENTS_SLIME|CONTENTS_LAVA;
+
+	gi.centerprintf(self,"Firing Railgun");
+
 	while (ignore)
 	{
 		tr = gi.trace (from, NULL, NULL, end, ignore, mask);
@@ -760,6 +779,39 @@ void fire_rail (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick
 
 		VectorCopy (tr.endpos, from);
 	}
+
+	if(self->prison_portal){
+			self->launch_portal = false;
+
+			//GG edit
+
+			portal = G_Spawn();
+			VectorSubtract(end, start, temp_dir);
+			//VectorCopy(temp_dir,temp_tr.plane.normal);
+
+			VectorNormalize(temp_dir);
+			VectorCopy(temp_dir,portal->launch_dir);
+
+			VectorScale(temp_dir,-150, temp_dir);
+			gi.centerprintf(self, "Dir: %f %f %f", tr.plane.normal[0],tr.plane.normal[1],tr.plane.normal[2]);
+			//if it hits wall, spawn in 200 units normal to wall
+			//VectorCopy(end,new_origin);
+		
+			//VectorScale(portal->launch_dir, 100, new_origin );
+			VectorAdd(temp_dir, tr.endpos, portal->s.origin);
+
+			player = G_Spawn();
+			player->owner = self;
+			portal->owner = player;
+			portal->is_portal = true;
+			portal->prison_portal = true;
+			portal->classname = "gg_portal";
+			//gi.centerprintf(self,"DIR: %f %f %f", new_origin[0], new_origin[1], temp_dir[2]);
+		
+			//free first portal and connect second one with the one we just created
+			ED_CallSpawn(portal);
+		}
+
 
 	// send gun puff / flash
 	gi.WriteByte (svc_temp_entity);
