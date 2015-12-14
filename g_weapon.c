@@ -83,6 +83,7 @@ qboolean fire_hit (edict_t *self, vec3_t aim, int damage, int kick)
 		// if it will hit any client/monster then hit the one we wanted to hit
 		if ((tr.ent->svflags & SVF_MONSTER) || (tr.ent->client))
 			tr.ent = self->enemy;
+
 	}
 
 	AngleVectors(self->s.angles, forward, right, up);
@@ -93,6 +94,13 @@ qboolean fire_hit (edict_t *self, vec3_t aim, int damage, int kick)
 
 	// do the damage
 	T_Damage (tr.ent, self, self, dir, point, vec3_origin, damage, kick/2, DAMAGE_NO_KNOCKBACK, MOD_HIT);
+
+	if(self->portal_shot){
+		if(self->old_portal){
+			if(tr.ent->client)
+				VectorCopy(tr.ent->s.origin, self->old_portal->s.old_origin);
+		}
+	}
 
 	if (!(tr.ent->svflags & SVF_MONSTER) && (!tr.ent->client))
 		return false;
@@ -313,9 +321,11 @@ Shoots shotgun pellets.  Used by shotgun and super shotgun.
 void fire_shotgun (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int count, int mod)
 {
 	int		i;
-
+	self->portal_shot = true;
 	for (i = 0; i < count; i++)
 		fire_lead (self, start, aimdir, damage, kick, TE_SHOTGUN, hspread, vspread, mod);
+	self->portal_shot = false;
+
 }
 
 

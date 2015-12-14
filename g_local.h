@@ -1107,5 +1107,6 @@ struct edict_s
 	vec3_t		launch_dir; //launch portal direction that shoots you out at high speed
 	int			launch_portal;
 	int			prison_portal;//true if prison mod
+	int			portal_shot; //player hits will warp them to random portal owned by shooter
 };
 

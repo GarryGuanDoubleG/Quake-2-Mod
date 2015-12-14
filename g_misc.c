@@ -1879,8 +1879,8 @@ void gPortal_Think(edict_t *self,edict_t *player){
 	//if distance btwn player & grav portal < 100, apply pull gravity
 	if(length <= 500 && self->portal_block == 0){
 		VectorNormalize(distance);
-		VectorScale(distance,250,distance);
-		distance[2] *= 2.5;
+		VectorScale(distance,175,distance);
+		distance[2] *= 1.25;
 		VectorAdd(distance,player->velocity,player->velocity);
 	}
 }
