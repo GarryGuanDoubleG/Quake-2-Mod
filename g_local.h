@@ -1104,5 +1104,7 @@ struct edict_s
 	int			is_portal;
 	int			portal_block; // a count timer to prevent getting stuck in portals
 	int			grav_portal; // bool for is gravity
+	vec3_t		launch_dir; //launch portal direction that shoots you out at high speed
+	int			launch_portal;
 };
 

@@ -147,6 +147,34 @@ static void fire_lead (edict_t *self, vec3_t start, vec3_t aimdir, int damage, i
 		}
 
 		tr = gi.trace (start, NULL, NULL, end, self, content_mask);
+		if(self->launch_portal){
+			self->launch_portal = false;
+
+			//GG edit
+			edict_t * portal;
+			edict_t * player;
+			vec3_t  new_origin;
+
+			portal = G_Spawn();
+			VectorScale(dir,-1,portal->launch_dir);
+
+			player = self->owner;
+
+			//if it hits wall, spawn in 200 units normal to wall
+			VectorCopy(end,new_origin);
+		
+			VectorScale(portal->launch_dir, 100, new_origin );
+			VectorAdd(new_origin, end, new_origin);
+
+			VectorAdd(new_origin,self->s.origin, portal->s.origin);
+
+			portal->owner = self;
+			portal->is_portal = true;
+			portal->classname = "gg_portal";
+			//free first portal and connect second one with the one we just created
+			ED_CallSpawn(portal);
+
+		}
 
 		// see if we hit water
 		if (tr.contents & MASK_WATER)
