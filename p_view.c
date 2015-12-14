@@ -940,6 +940,8 @@ void ClientEndServerFrame (edict_t *ent)
 {
 	float	bobtime;
 	int		i;
+	vec3_t	distance;
+	float	length;
 
 	current_player = ent;
 	current_client = ent->client;
@@ -952,6 +954,22 @@ void ClientEndServerFrame (edict_t *ent)
 	// If it wasn't updated here, the view position would lag a frame
 	// behind the body position when pushed -- "sinking into plats"
 	//
+	//gg edit
+	/*if(ent->dash_count > 0)
+		ent->dash_count -= 1;
+	else if(ent->dash_count == 0)//0 means that we couldn't reach 100 units away at this speed, so after this timer we 
+	{
+
+	}
+	else if(ent->dash_start){
+		VectorSubtract(ent->s.origin, ent->dash_start, distance);
+		length = VectorLength(distance);
+		if(length > 100){
+			VectorSubtract(ent->velocity, ent->dash_vel, ent->velocity);
+			ent->dash_count = -1;
+		}
+	}*/
+
 	for (i=0 ; i<3 ; i++)
 	{
 		current_client->ps.pmove.origin[i] = ent->s.origin[i]*8.0;

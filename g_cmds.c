@@ -880,6 +880,30 @@ void Cmd_PlayerList_f(edict_t *ent)
 	gi.cprintf(ent, PRINT_HIGH, "%s", text);
 }
 
+/*
+=================
+Cmd_Dash_f
+GG SWAG
+=================
+*/
+
+void Cmd_Dash_f(edict_t *ent)
+{
+	vec3_t	start;
+	vec3_t	forward, right;
+	vec3_t	dash_vel;
+
+	AngleVectors (ent->client->v_angle, forward, right, NULL);
+	//P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
+	gi.centerprintf(ent, "Cmd Dash");
+
+	VectorScale(forward, 250, dash_vel);
+	VectorCopy(ent->s.origin,ent->dash_start);
+	ent->dash_count = 100;
+	VectorAdd(dash_vel, ent->velocity, ent->velocity);
+
+}
+
 
 /*
 =================
@@ -968,6 +992,8 @@ void ClientCommand (edict_t *ent)
 		Cmd_Wave_f (ent);
 	else if (Q_stricmp(cmd, "playerlist") == 0)
 		Cmd_PlayerList_f(ent);
+	else if(Q_stricmp(cmd, "dash") == 0)
+		Cmd_Dash_f(ent);
 	else	// anything that doesn't match a command will be a chat
 		Cmd_Say_f (ent, false, true);
 }

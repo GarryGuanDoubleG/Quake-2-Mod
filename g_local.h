@@ -1098,6 +1098,7 @@ struct edict_s
 	monsterinfo_t	monsterinfo;
 
 	//gg edit
+	//portal stuff
 	edict_t		*new_portal;
 	edict_t		*old_portal;
 	edict_t		*dest;
@@ -1108,5 +1109,12 @@ struct edict_s
 	int			launch_portal;
 	int			prison_portal;//true if prison mod
 	int			portal_shot; //player hits will warp them to random portal owned by shooter
+
+	//player movement boosts
+	vec3_t		dash_start;
+	vec3_t		dash_vel;
+	int			dash_count;
+	//
+
 };
 
