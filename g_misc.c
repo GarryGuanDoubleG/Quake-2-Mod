@@ -1870,6 +1870,21 @@ void SP_Portal_Use (edict_t *ent, edict_t *other, edict_t *activator)
 	//G_FreeEdict (ent);
 }
 
+void gPortal_Think(edict_t *self,edict_t *player){
+	vec3_t			distance;
+	float			length;
+
+	VectorSubtract(self->s.origin, player->s.origin, distance);
+	length = VectorLength(distance);
+	//if distance btwn player & grav portal < 100, apply pull gravity
+	if(length <= 500 && self->portal_block == 0){
+		VectorNormalize(distance);
+		VectorScale(distance,150,distance);
+		distance[2] *= 2.5;
+		VectorAdd(distance,player->velocity,player->velocity);
+	}
+
+}
 void SP_Portal_Think (edict_t *self)
 {
 	if (++self->s.frame < 19)
@@ -1887,7 +1902,23 @@ void SP_Portal_Think (edict_t *self)
 		gi.linkentity(self);
 	}
 
+	if(self->grav_portal){
+		int		i;
+		edict_t	*ent;
+
+		// calc the player views now that all pushing
+		// and damage has been added
+		for (i=0 ; i<maxclients->value ; i++)
+		{
+			ent = g_edicts + 1 + i;
+			if (!ent->inuse || !ent->client)
+				continue;
+			gPortal_Think (self,ent);
+		}
+	}
 }
+
+
 void portal_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf){
 
 	/*if(!other->client)
@@ -1906,8 +1937,6 @@ void portal_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *s
 	if (!other->client)
 		return;
 
-
-	gi.centerprintf(other, "Portal Touch: Set portal_block to 100");
 
 	dest = self->dest;
 	dest->portal_block = 50;
@@ -1928,9 +1957,11 @@ void portal_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *s
 	other->s.origin[2] += 10;
 
 	// clear the velocity and hold them in place briefly
-	VectorClear (other->velocity);
-	other->client->ps.pmove.pm_time = 160>>3;		// hold time
-	other->client->ps.pmove.pm_flags |= PMF_TIME_TELEPORT;
+	if(self->grav_portal)
+		VectorClear (other->velocity);
+	/*
+	other->client->ps.pmove.pm_time = 160>>3;*/		// hold time
+	/*other->client->ps.pmove.pm_flags |= PMF_TIME_TELEPORT;*/
 
 	// draw the teleport splash at source and on the player
 	self->owner->s.event = EV_PLAYER_TELEPORT;
@@ -1942,9 +1973,9 @@ void portal_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *s
 		other->client->ps.pmove.delta_angles[i] = ANGLE2SHORT(dest->s.angles[i] - other->client->resp.cmd_angles[i]);
 	}
 
-	VectorClear (other->s.angles);
+	/*VectorClear (other->s.angles);
 	VectorClear (other->client->ps.viewangles);
-	VectorClear (other->client->v_angle);
+	VectorClear (other->client->v_angle);*/
 
 	// kill anything at the destination
 	KillBox (other);
@@ -1955,10 +1986,37 @@ void portal_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *s
 
 void SP_Portal (edict_t *ent)
 {
+	edict_t		*player;
+	edict_t		*portal;
+	int			i;
+
+	portal = ent;
+
+	player = ent->owner->owner;
+	
+	//free first portal and connect second one with the one we just created
+
+	if(!player->old_portal){
+		player->old_portal = portal;
+	}
+	else if(!player->new_portal){
+		player->new_portal = portal;
+		portal->dest = player->old_portal;
+		player->old_portal->dest = player->new_portal;
+	}
+	else{
+		G_FreeEdict(player->old_portal);
+		player->new_portal->dest = portal;
+		portal->dest = player->new_portal;
+		player->old_portal = player->new_portal;
+		player->new_portal = portal;
+	}
+
+
 	ent->movetype = MOVETYPE_NONE;
 	ent->solid = SOLID_BBOX;
-	VectorSet (ent->mins, -64, -64, -10);
-	VectorSet (ent->maxs, 64, 64,10);
+	VectorSet (ent->mins, -64, -64, -50);
+	VectorSet (ent->maxs, 64, 64,50);
 
 	ent->s.modelindex = gi.modelindex ("models/objects/black/tris.md2");
 	ent->s.renderfx = RF_FULLBRIGHT;

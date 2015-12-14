@@ -12,6 +12,9 @@ int	snd_fry;
 int meansOfDeath;
 
 edict_t		*g_edicts;
+//gg edit
+int				grav_portal_count = 0;
+edict_t			*grav_portals[MAX_GRAV_PORTALS];
 
 cvar_t	*deathmatch;
 cvar_t	*coop;

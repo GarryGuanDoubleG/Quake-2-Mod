@@ -485,7 +485,12 @@ extern	int	meansOfDeath;
 
 
 extern	edict_t			*g_edicts;
-
+//gg edit
+//used for gravity portals
+#define MAX_GRAV_PORTALS 32
+extern  int				grav_portal_count;
+extern  edict_t			*grav_portals[MAX_GRAV_PORTALS];
+//end
 #define	FOFS(x) (int)&(((edict_t *)0)->x)
 #define	STOFS(x) (int)&(((spawn_temp_t *)0)->x)
 #define	LLOFS(x) (int)&(((level_locals_t *)0)->x)
@@ -1098,7 +1103,6 @@ struct edict_s
 	edict_t		*dest;
 	int			is_portal;
 	int			portal_block; // a count timer to prevent getting stuck in portals
-	int			two_portals;// true if have 2 portals. Used to check if we want to free then create a portal
-
+	int			grav_portal; // bool for is gravity
 };
 
