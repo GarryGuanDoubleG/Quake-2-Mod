@@ -1967,6 +1967,7 @@ void portal_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *s
 		VectorScale(dest->launch_dir, -1500, launch_vel);
 		if(launch_vel[2] == 0)
 			launch_vel[2] += 100;
+		VectorClear(other->velocity);
 		VectorAdd(launch_vel,other->velocity,other->velocity);
 	}
 
@@ -2016,7 +2017,12 @@ void SP_Portal (edict_t *ent)
 {
 	edict_t		*player;
 	edict_t		*portal;
+	edict_t		*temp;
 	int			i;
+	int			j;
+	int			DrawEffects[15] = {1,2,4,8,16,32,64,128,256,512,1024,2048,4096}; // gonna hard code cause out of time
+
+#define RF_SHELL_BLUE		4096
 
 	portal = ent;
 
@@ -2046,8 +2052,20 @@ void SP_Portal (edict_t *ent)
 	VectorSet (ent->maxs, 64, 64,50);
 
 	ent->s.modelindex = gi.modelindex ("models/objects/black/tris.md2");
-	ent->s.renderfx = RF_FULLBRIGHT;
+	
+	for (i=0 ; i<maxclients->value ; i++)
+	{
+			temp = g_edicts + 1 + i;
+			if (!temp->inuse || !temp->client)
+				continue;
+			if(ent->owner->owner != temp)
+				continue;
+			gi.centerprintf(temp, "draw effects activated");
+			ent->s.renderfx = DrawEffects[i];
+	}
+	
 	ent->use = SP_Portal_Use;
+	//ent->s.renderfx = RF_FULLBRIGHT;
 	ent->think = SP_Portal_Think;
 	ent->nextthink = level.time + 2 * FRAMETIME;
 	ent->touch = portal_touch;
