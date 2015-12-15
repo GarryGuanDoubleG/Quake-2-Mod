@@ -357,7 +357,7 @@ void blaster_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *
 	VectorCopy(plane->normal,new_origin);
 	VectorNormalize(new_origin);
 	if (surf && (surf->flags & SURF_SKY))
-		VectorScale(new_origin, 150,new_origin);
+		VectorScale(new_origin, 200,new_origin);
 	else
 		VectorScale(new_origin, 100, new_origin);
 	VectorAdd(new_origin,self->s.origin, portal->s.origin);
@@ -649,7 +649,10 @@ void rocket_touch (edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *su
 	VectorCopy(plane->normal,new_origin);
 	VectorNormalize(new_origin);
 
-	VectorScale(new_origin, 150,new_origin);
+	if (surf && (surf->flags & SURF_SKY))
+		VectorScale(new_origin, 200,new_origin);
+	else
+		VectorScale(new_origin, 100, new_origin);
 
 	VectorAdd(new_origin,ent->s.origin, portal->s.origin);
 

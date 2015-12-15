@@ -1870,6 +1870,25 @@ void SP_Portal_Use (edict_t *ent, edict_t *other, edict_t *activator)
 	//G_FreeEdict (ent);
 }
 
+void prisonPortal_think(edict_t *self, edict_t * player){
+	vec3_t			distance;
+	float			length;
+
+	if(!self->prison_portal)
+		return;
+
+	VectorSubtract(self->s.origin, player->s.origin, distance);
+	length = VectorLength(distance);
+
+	//if distance btwn player & grav portal < 100, apply pull gravity
+	if(length <= 50){
+		VectorNormalize(distance);
+		VectorScale(distance,300,distance);
+		VectorClear(player->velocity);
+		VectorAdd(distance,player->velocity,player->velocity);
+		gi.centerprintf(self->owner->owner, "prisonPortal think");
+	}
+}
 void gPortal_Think(edict_t *self,edict_t *player){
 	vec3_t			distance;
 	float			length;
@@ -1901,7 +1920,7 @@ void SP_Portal_Think (edict_t *self)
 		gi.linkentity(self);
 	}
 
-	if(self->grav_portal){
+	if(self->grav_portal || self->prison_portal){
 		int		i;
 		edict_t	*ent;
 
@@ -1912,9 +1931,14 @@ void SP_Portal_Think (edict_t *self)
 			ent = g_edicts + 1 + i;
 			if (!ent->inuse || !ent->client)
 				continue;
-			gPortal_Think (self,ent);
+			if(self->grav_portal)
+				gPortal_Think (self,ent);
+			else if(self->prison_portal){
+				prisonPortal_think(self, ent);
+			}
 		}
 	}
+
 }
 
 
@@ -1935,8 +1959,10 @@ void portal_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *s
 		return;
 	}
 	dest = self->dest;
+	gi.centerprintf(self->owner->owner, dest->launch_portal ? "true" : "false");
 
 	if(dest->launch_portal && self->portal_block <= 0){
+
 		vec3_t launch_vel;
 		VectorScale(dest->launch_dir, -1500, launch_vel);
 		if(launch_vel[2] == 0)
@@ -1949,19 +1975,17 @@ void portal_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *s
 	// unlink to make sure it can't possibly interfere with KillBox
 	gi.unlinkentity (other);
 	gi.unlinkentity(self->dest);
-	if( dest->prison_portal){
-		gi.centerprintf(self->owner->owner, " in dest prison");
-		gi.linkentity(dest);
-	}
 
+	
 	VectorCopy (dest->s.origin, other->s.origin);
 	VectorCopy (dest->s.origin, other->s.old_origin);
+	
 
 	other->s.origin[2] += 10;
 
 	// clear the velocity and hold them in place briefly
-	if(self->grav_portal)
-		VectorClear (other->velocity);
+	/*if(self->grav_portal)
+		VectorClear (other->velocity);*/
 	/*
 	other->client->ps.pmove.pm_time = 160>>3;*/		// hold time
 	/*other->client->ps.pmove.pm_flags |= PMF_TIME_TELEPORT;*/
@@ -1995,7 +2019,6 @@ void SP_Portal (edict_t *ent)
 	int			i;
 
 	portal = ent;
-
 
 	player = ent->owner->owner;
 	
