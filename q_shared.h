@@ -585,7 +585,7 @@ typedef struct
 //gg edit
 #define GG_GRAVITY			2048
 #define GG_LAUNCH			4096
-#define GG_PRISON			128
+#define GG_PRISON			512
 #define GG_PORTAL			1024
 
 //ROGUE

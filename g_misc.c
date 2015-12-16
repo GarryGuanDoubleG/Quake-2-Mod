@@ -2051,7 +2051,6 @@ void SP_Portal (edict_t *ent)
 
 	ent->s.modelindex = gi.modelindex ("models/objects/black/tris.md2");
 	
-	gi.centerprintf(ent->owner->owner, "Index: %i", ent->index);
 	if(ent->grav_portal)
 		ent->s.renderfx = GG_GRAVITY;
 	else if(ent->launch_portal)

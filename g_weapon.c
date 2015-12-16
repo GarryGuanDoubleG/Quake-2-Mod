@@ -838,7 +838,7 @@ void fire_rail (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick
 			VectorCopy(temp_dir,portal->launch_dir);
 
 			VectorScale(temp_dir,-200, temp_dir);
-			gi.centerprintf(self, "Dir: %f %f %f", tr.plane.normal[0],tr.plane.normal[1],tr.plane.normal[2]);
+			gi.centerprintf(self, "Prison Portal");
 			//if it hits wall, spawn in 200 units normal to wall
 			//VectorCopy(end,new_origin);
 		
