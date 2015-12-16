@@ -1092,6 +1092,9 @@ void PutClientInServer (edict_t *ent)
 	SelectSpawnPoint (ent, spawn_origin, spawn_angles);
 
 	index = ent-g_edicts-1;
+	//gg edit
+	ent->index = index;
+	//end
 	client = ent->client;
 
 	// deathmatch wipes most client data every spawn

@@ -1905,6 +1905,7 @@ void gPortal_Think(edict_t *self,edict_t *player){
 }
 void SP_Portal_Think (edict_t *self)
 {
+
 	if (++self->s.frame < 19)
 		self->nextthink = level.time + FRAMETIME;
 	else
@@ -2020,12 +2021,9 @@ void SP_Portal (edict_t *ent)
 	edict_t		*temp;
 	int			i;
 	int			j;
-	int			DrawEffects[15] = {1,2,4,8,16,32,64,128,256,512,1024,2048,4096}; // gonna hard code cause out of time
-
-#define RF_SHELL_BLUE		4096
-
+	//int			DrawEffects[15] = {1,2,4,8,16,32,64,128,256,512,1024,2048,4096}; // gonna hard code cause out of time
+	int			DrawEffects[15] = {2048,4096,64,128,256,512,1024,};
 	portal = ent;
-
 	player = ent->owner->owner;
 	
 	//free first portal and connect second one with the one we just created
@@ -2053,15 +2051,15 @@ void SP_Portal (edict_t *ent)
 
 	ent->s.modelindex = gi.modelindex ("models/objects/black/tris.md2");
 	
-	for (i=0 ; i<maxclients->value ; i++)
-	{
-			temp = g_edicts + 1 + i;
-			if (!temp->inuse || !temp->client)
-				continue;
-			if(ent->owner->owner != temp)
-				continue;
-			ent->s.renderfx = DrawEffects[i];
-	}
+	gi.centerprintf(ent->owner->owner, "Index: %i", ent->index);
+	if(ent->grav_portal)
+		ent->s.renderfx = GG_GRAVITY;
+	else if(ent->launch_portal)
+		ent->s.renderfx = GG_LAUNCH;
+	else if(ent->prison_portal)
+		ent->s.renderfx = GG_PRISON;
+	else
+		ent->s.renderfx = GG_PORTAL;
 	
 	ent->use = SP_Portal_Use;
 	//ent->s.renderfx = RF_FULLBRIGHT;

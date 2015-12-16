@@ -162,6 +162,7 @@ typedef enum
 #define PNOISE_WEAPON			1
 #define PNOISE_IMPACT			2
 
+//gg edit
 
 // edict->movetype values
 typedef enum
@@ -1122,5 +1123,7 @@ struct edict_s
 	int			speedup; // bool if shift is down
 	int			speeddown;
 	int			speed_count;
+	//color stuff
+	int			index;
 };
 

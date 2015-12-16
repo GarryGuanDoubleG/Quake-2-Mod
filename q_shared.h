@@ -582,6 +582,11 @@ typedef struct
 #define RF_SHELL_RED		1024
 #define	RF_SHELL_GREEN		2048
 #define RF_SHELL_BLUE		4096
+//gg edit
+#define GG_GRAVITY			2048
+#define GG_LAUNCH			4096
+#define GG_PRISON			128
+#define GG_PORTAL			1024
 
 //ROGUE
 #define RF_IR_VISIBLE		0x00008000		// 32768

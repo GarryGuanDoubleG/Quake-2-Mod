@@ -1,6 +1,5 @@
 #include "g_local.h"
 
-
 /*
 =================
 check_dodge
@@ -92,14 +91,8 @@ qboolean fire_hit (edict_t *self, vec3_t aim, int damage, int kick)
 	VectorMA (point, aim[2], up, point);
 	VectorSubtract (point, self->enemy->s.origin, dir);
 
-	// do the damage
 	T_Damage (tr.ent, self, self, dir, point, vec3_origin, damage, kick/2, DAMAGE_NO_KNOCKBACK, MOD_HIT);
-	/*if(self->portal_shot){
-		if(self->old_portal){
-			if(tr.ent->client)
-				VectorCopy(tr.ent->s.origin, self->old_portal->s.old_origin);
-		}
-	}*/
+
 
 	if (!(tr.ent->svflags & SVF_MONSTER) && (!tr.ent->client))
 		return false;
@@ -163,11 +156,11 @@ static void fire_lead (edict_t *self, vec3_t start, vec3_t aimdir, int damage, i
 
 		tr = gi.trace (start, NULL, NULL, end, self, content_mask);
 
-			if(self->launch_portal){
+		if(self->launch_portal && !self->portal_shot){
 				self->launch_portal = false;
 
 				//GG edit
-
+				gi.centerprintf(self, "Launch portal");
 				portal = G_Spawn();
 				VectorSubtract(end, start, temp_dir);
 				//VectorCopy(temp_dir,temp_tr.plane.normal);
@@ -175,7 +168,7 @@ static void fire_lead (edict_t *self, vec3_t start, vec3_t aimdir, int damage, i
 				VectorNormalize(temp_dir);
 				VectorCopy(temp_dir,portal->launch_dir);
 
-				VectorScale(temp_dir,-150, temp_dir);
+				VectorScale(temp_dir,-200, temp_dir);
 				//if it hits wall, spawn in 200 units normal to wall
 				//VectorCopy(end,new_origin);
 		
@@ -248,23 +241,34 @@ static void fire_lead (edict_t *self, vec3_t start, vec3_t aimdir, int damage, i
 
 	if(tr.ent->client){
 		if(self->portal_shot){
-					if(self->owner->old_portal){
+					if(self->old_portal){
 							int i;
 							edict_t *temp;
 							for (i=0 ; i<maxclients->value ; i++)
 								{
+										vec3_t offset;
+										//VectorScale( portal->launch_dir, 50, offset);
+
 										temp = g_edicts + 1 + i;
+
 										if (!temp->inuse || !temp->client)
 											continue;
 										if(tr.ent != temp)
 											continue;
-										VectorCopy(tr.ent->s.origin, self->old_portal->s.old_origin);
+										temp = tr.ent;
+										VectorCopy(self->old_portal->s.origin, temp->s.origin);
+										//VectorAdd(temp->s.origin, offset, temp->s.origin);
+								
+										gi.centerprintf(tr.ent," tr ent shot");
+										gi.centerprintf(self, "XYZ: %f%f%f", self->old_portal->s.origin[0],self->old_portal->s.origin[1],self->old_portal->s.origin[2]);
+					
 								}
 							}
 					}
-							self->portal_shot = false;
-							gi.centerprintf(self->owner, "Portal shot shotgun");
+							/*self->portal_shot = false;
+							gi.centerprintf(self->owner, "Portal shot shotgun");*/
 		}
+		
 
 	// send gun puff / flash
 	if (!((tr.surface) && (tr.surface->flags & SURF_SKY)))
@@ -380,13 +384,14 @@ void blaster_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *
 	//if it hits wall, spawn in 200 units normal to wall
 	VectorCopy(plane->normal,new_origin);
 	VectorNormalize(new_origin);
+	VectorCopy(new_origin,portal->launch_dir);
+
 	if (surf && (surf->flags & SURF_SKY))
 		VectorScale(new_origin, 200,new_origin);
 	else
-		VectorScale(new_origin, 100, new_origin);
+		VectorScale(new_origin, 150, new_origin);
 	VectorAdd(new_origin,self->s.origin, portal->s.origin);
 
-	gi.centerprintf(self->owner, "Blaster: %f %f %f", self->s.origin[0], self->s.origin[1], self->s.origin[2]);
 	portal->owner = self;
 	portal->is_portal = true;
 	portal->classname = "gg_portal";
@@ -673,10 +678,11 @@ void rocket_touch (edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *su
 	VectorCopy(plane->normal,new_origin);
 	VectorNormalize(new_origin);
 
+	VectorCopy(new_origin,portal->launch_dir);
 	if (surf && (surf->flags & SURF_SKY))
 		VectorScale(new_origin, 200,new_origin);
 	else
-		VectorScale(new_origin, 100, new_origin);
+		VectorScale(new_origin, 150, new_origin);
 
 	VectorAdd(new_origin,ent->s.origin, portal->s.origin);
 
@@ -829,7 +835,7 @@ void fire_rail (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick
 			VectorNormalize(temp_dir);
 			VectorCopy(temp_dir,portal->launch_dir);
 
-			VectorScale(temp_dir,-150, temp_dir);
+			VectorScale(temp_dir,-200, temp_dir);
 			gi.centerprintf(self, "Dir: %f %f %f", tr.plane.normal[0],tr.plane.normal[1],tr.plane.normal[2]);
 			//if it hits wall, spawn in 200 units normal to wall
 			//VectorCopy(end,new_origin);
