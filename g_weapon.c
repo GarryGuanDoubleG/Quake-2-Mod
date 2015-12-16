@@ -239,36 +239,6 @@ static void fire_lead (edict_t *self, vec3_t start, vec3_t aimdir, int damage, i
 		}
 	}
 
-	if(tr.ent->client){
-		if(self->portal_shot){
-					if(self->old_portal){
-							int i;
-							edict_t *temp;
-							for (i=0 ; i<maxclients->value ; i++)
-								{
-										vec3_t offset;
-										//VectorScale( portal->launch_dir, 50, offset);
-
-										temp = g_edicts + 1 + i;
-
-										if (!temp->inuse || !temp->client)
-											continue;
-										if(tr.ent != temp)
-											continue;
-										temp = tr.ent;
-										VectorCopy(self->old_portal->s.origin, temp->s.origin);
-										//VectorAdd(temp->s.origin, offset, temp->s.origin);
-								
-										gi.centerprintf(tr.ent," tr ent shot");
-										gi.centerprintf(self, "XYZ: %f%f%f", self->old_portal->s.origin[0],self->old_portal->s.origin[1],self->old_portal->s.origin[2]);
-					
-								}
-							}
-					}
-							/*self->portal_shot = false;
-							gi.centerprintf(self->owner, "Portal shot shotgun");*/
-		}
-		
 
 	// send gun puff / flash
 	if (!((tr.surface) && (tr.surface->flags & SURF_SKY)))
@@ -320,6 +290,38 @@ static void fire_lead (edict_t *self, vec3_t start, vec3_t aimdir, int damage, i
 		gi.multicast (pos, MULTICAST_PVS);
 	}
 
+	if(tr.ent)
+	{
+		if(tr.ent->client){
+			if(self->portal_shot){
+						if(self->old_portal){
+								int i;
+								edict_t *temp;
+								for (i=0 ; i<maxclients->value ; i++)
+									{
+											vec3_t offset;
+											//VectorScale( portal->launch_dir, 50, offset);
+
+											temp = g_edicts + 1 + i;
+
+											if (!temp->inuse || !temp->client)
+												continue;
+											if(tr.ent != temp)
+												continue;
+											temp = tr.ent;
+											VectorCopy(self->old_portal->s.origin, temp->s.origin);
+											//VectorAdd(temp->s.origin, offset, temp->s.origin);
+								
+											gi.centerprintf(tr.ent," tr ent shot");
+											gi.centerprintf(self, "XYZ: %f%f%f", self->old_portal->s.origin[0],self->old_portal->s.origin[1],self->old_portal->s.origin[2]);
+					
+									}
+								}
+						}
+								/*self->portal_shot = false;
+								gi.centerprintf(self->owner, "Portal shot shotgun");*/
+			}
+	}
 
 }
 
