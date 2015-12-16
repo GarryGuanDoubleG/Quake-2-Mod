@@ -2060,7 +2060,6 @@ void SP_Portal (edict_t *ent)
 				continue;
 			if(ent->owner->owner != temp)
 				continue;
-			gi.centerprintf(temp, "draw effects activated");
 			ent->s.renderfx = DrawEffects[i];
 	}
 	

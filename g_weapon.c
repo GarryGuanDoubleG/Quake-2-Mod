@@ -94,13 +94,12 @@ qboolean fire_hit (edict_t *self, vec3_t aim, int damage, int kick)
 
 	// do the damage
 	T_Damage (tr.ent, self, self, dir, point, vec3_origin, damage, kick/2, DAMAGE_NO_KNOCKBACK, MOD_HIT);
-
-	if(self->portal_shot){
+	/*if(self->portal_shot){
 		if(self->old_portal){
 			if(tr.ent->client)
 				VectorCopy(tr.ent->s.origin, self->old_portal->s.old_origin);
 		}
-	}
+	}*/
 
 	if (!(tr.ent->svflags & SVF_MONSTER) && (!tr.ent->client))
 		return false;
@@ -112,6 +111,8 @@ qboolean fire_hit (edict_t *self, vec3_t aim, int damage, int kick)
 	VectorMA (self->enemy->velocity, kick, v, self->enemy->velocity);
 	if (self->enemy->velocity[2] > 0)
 		self->enemy->groundentity = NULL;
+
+
 	return true;
 }
 
@@ -193,6 +194,7 @@ static void fire_lead (edict_t *self, vec3_t start, vec3_t aimdir, int damage, i
 				ED_CallSpawn(portal);
 		}
 
+
 		// see if we hit water
 		if (tr.contents & MASK_WATER)
 		{
@@ -244,6 +246,26 @@ static void fire_lead (edict_t *self, vec3_t start, vec3_t aimdir, int damage, i
 		}
 	}
 
+	if(tr.ent->client){
+		if(self->portal_shot){
+					if(self->owner->old_portal){
+							int i;
+							edict_t *temp;
+							for (i=0 ; i<maxclients->value ; i++)
+								{
+										temp = g_edicts + 1 + i;
+										if (!temp->inuse || !temp->client)
+											continue;
+										if(tr.ent != temp)
+											continue;
+										VectorCopy(tr.ent->s.origin, self->old_portal->s.old_origin);
+								}
+							}
+					}
+							self->portal_shot = false;
+							gi.centerprintf(self->owner, "Portal shot shotgun");
+		}
+
 	// send gun puff / flash
 	if (!((tr.surface) && (tr.surface->flags & SURF_SKY)))
 	{
@@ -252,6 +274,7 @@ static void fire_lead (edict_t *self, vec3_t start, vec3_t aimdir, int damage, i
 			if (tr.ent->takedamage)
 			{
 				T_Damage (tr.ent, self, self, aimdir, tr.endpos, tr.plane.normal, damage, kick, DAMAGE_BULLET, mod);
+
 			}
 			else
 			{
@@ -322,6 +345,7 @@ void fire_shotgun (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int k
 {
 	int		i;
 	self->portal_shot = true;
+	self->launch_portal = false;
 	for (i = 0; i < count; i++)
 		fire_lead (self, start, aimdir, damage, kick, TE_SHOTGUN, hspread, vspread, mod);
 	self->portal_shot = false;
